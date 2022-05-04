@@ -1,5 +1,6 @@
 var stage,depart=new createjs.Point(),foc,gamma,reel,inf=false,ob,im,sto;
-var cou='#0F0'
+var couIncident='#0F0'
+var couEmergent='#0F0'
 var couL='#639AFF'
 var sens;
 var coef=0.25;
@@ -112,7 +113,7 @@ function init() {
 	
 	//echelle
 	var echelle=dessineEchelle('grey')
-	echelle.x=-320
+	echelle.x=-300
 	echelle.y=180
 	
 	contGrille.addChild(grille,echelle)
@@ -276,31 +277,50 @@ function init() {
 	aff.addChild(fondAff,txtfoc,txtobj,txtimg,txtgamma)
 	
 	//palette de couleurs
-	var palette=new createjs.Container().set({x:-360,y:10})
+	var paletteIncident=new createjs.Container().set({x:-380,y:10});
+	var paletteEmergent=new createjs.Container().set({x:-340,y:10});
 	btfond.y=-10;
-	palette.addChild(btfond)
+	btfond.x=20;
+	paletteIncident.addChild(btfond);
 	var couleurs=new Array('#F00','#0F0','#00F','#90F','#0C9','#FF0','#FCF','#3FF','#FC0','#F9F','#006');
-	var bt=new createjs.Shape()
-	bt.graphics.beginFill(cou).drawRect(0,0,20,20)
+	var bt=new createjs.Shape();
+	bt.graphics.beginFill(couIncident).drawRect(0,0,20,20);
+	
 	for (var k=0;k<=8;k++){
-		var carre=new createjs.Shape()
-		carre.graphics.beginFill(couleurs[k]).drawRect(0,0,20,20)
-		carre.y=k*20+40
-		//carre.hitArea=bt
-		carre.cursor = "pointer"
-		palette.addChild(carre)
-		
+		var carre=new createjs.Shape();
+		carre.graphics.beginFill(couleurs[k]).drawRect(0,0,20,20);
+		carre.y=k*20+40;
+		// carre.hitArea=bt
+		carre.cursor = "pointer";
+		paletteIncident.addChild(carre);
 	}
-	palette.on("click", function(event){
+	for (var k=0;k<=8;k++){
+		var carre=new createjs.Shape();
+		carre.graphics.beginFill(couleurs[k]).drawRect(0,0,20,20);
+		carre.y=k*20+40;
+		// carre.hitArea=bt
+		carre.cursor = "pointer";
+		paletteEmergent.addChild(carre);
+	}
+	
+	paletteIncident.on("click", function(event){
 		var icou=event.target.y/20-2;
 		if(icou>=0){
-			cou=couleurs[icou]
-		//cou='#'+tabCou[icou].toString(16)+'\''
-		ajusteCouleur(tabCou[icou])
-		sens.updateCache();
+			couIncident=couleurs[icou];
+		//couIncident='#'+tabCou[icou].toString(16)+'\''
+			ajusteCouleur(tabCou[icou]);
+			sens.updateCache();
 		}
-		
-		calcule()
+		calcule();
+	})
+	paletteEmergent.on("click", function(event){
+		var icou=event.target.y/20-2;
+		if(icou>=0){
+			couEmergent=couleurs[icou];
+		//couEmergent='#'+tabCou[icou].toString(16)+'\''
+			ajusteCouleur(tabCou[icou]);
+		}
+		calcule();
 	})
 	//sens
 	sens=dessineSens('red')
@@ -326,8 +346,16 @@ function init() {
 	//signature
 	var signature=signer('08/2018',couL).set({x:340,y:270});
 	
+	//limites
+	const formulaire = document.getElementById('parametres');
+	const A1_min = formulaire.elements['A1_min'].value;
+	console.log(A1_min);
+	//alert(A1_min);
+	
+	//var formu = document.forms("parametres");
+	
 	stage.addChild(systeme,aide);
-	systeme.addChild(sens,axe,contGrille,lentille,curFoc,btinf,btfaisc,btgrille,btaff,rayons,aff,pA1,pB1,txA2,txB2,palette,donne,signature);
+	systeme.addChild(sens,axe,contGrille,lentille,curFoc,btinf,btfaisc,btgrille,btaff,rayons,aff,pA1,pB1,txA2,txB2,paletteIncident,paletteEmergent,donne,signature);
 	systeme.addChild(btPE);
 	calcule();
 
@@ -339,9 +367,7 @@ function init() {
 		affiche();
 		rayons.graphics.clear();
 		
-		const formulaire = document.getElementById('parametres');
-		const A1_min = formulaire.elements['A1_min'].value;
-		console.log(A1_min);
+
 
 		// if(ob.X < A1_min) {
 			// ob.X = A1_min;
@@ -388,27 +414,35 @@ function init() {
 		var penteinitiale=(ob.Y-ordo)/(ob.X-L.x);
 		var yprevu=ordo+(xmax-L.x)*penteinitiale;
 		
-		mc.graphics.setStrokeStyle(ep).beginStroke(cou);
+		mc.graphics.setStrokeStyle(ep).beginStroke(couEmergent);
 		if (img.reel) {
 			//image réelle
 			rayon(mc,inci, arriv, f);
-			if (ordo != 0) {
-				pointille(mc,new createjs.Point(xmax,yprevu), new createjs.Point(L.x, ordo), cou);
-			}
+			// if (ordo != 0) {
+				// pointille(mc,new createjs.Point(xmax,yprevu), new createjs.Point(L.x, ordo), couEmergent);
+			// }
 		}
 		else{
 			//image virtuelle
 			mc.graphics.beginStroke('#AAA');
 			//if(ordo!==0){
+				/*
 				if (img.X>xmin) {
-					pointille(mc,new createjs.Point(xmax,yprevu), new createjs.Point(L.x, ordo), cou);
+					pointille(mc,new createjs.Point(xmax,yprevu), new createjs.Point(L.x, ordo), couEmergent);
 					pointille(mc,P, new createjs.Point(L.x, ordo), '#AAA');
 				}
 				else {
 					pointille(mc,new createjs.Point(xmin, ydeb), new createjs.Point(L.x, ordo), '#AAA');
+					pointille(mc,new createjs.Point(xmax,yprevu), new createjs.Point(L.x, ordo), couEmergent);
+				}
+				*/
+				pointille(mc,P, new createjs.Point(L.x, ordo), '#AAA');
+				if(curFoc.value < 0) {
+					pointille(mc,P, new createjs.Point(L.x, ordo), '#AAA');
+					pointille(mc,new createjs.Point(xmax,yprevu), new createjs.Point(L.x, ordo), couEmergent);
 				}
 			//}
-			mc.graphics.setStrokeStyle(ep).beginStroke(cou);
+			mc.graphics.setStrokeStyle(ep).beginStroke(couEmergent);
 			rayon(mc,inci, arriv, f);
 		}
 	}
@@ -516,7 +550,9 @@ function init() {
 		var ydeb=ordo+(xmin-L.x)*pente;
 		var depart=new createjs.Point(xmin,ydeb);
 		var inci=new createjs.Point(L.x,ordo);
-		mc.graphics.setStrokeStyle(ep).beginStroke(cou);
+		var F = new createjs.Point(-curFoc.value,0);
+		
+		mc.graphics.setStrokeStyle(ep).beginStroke(couIncident);
 		if (obj.reel) {
 			//objet réel
 			if (obj.X>xmin) {
@@ -525,20 +561,22 @@ function init() {
 			else {
 				rayon(mc,depart, inci, f);
 			}
+			if (P.x > F.x) {
+				rayon(mc,F,P,f);
+			}
 		}
 		else{
 			
 			//objet virtuel
-			mc.graphics.setStrokeStyle(ep).beginStroke(cou);
-			
-				
+			mc.graphics.setStrokeStyle(ep).beginStroke(couIncident);
 			rayon(mc,depart, inci, f);
 			
-			if (obj.X<xmax) {
-				pointille(mc,new createjs.Point(L.x, ordo),P, f);
+			if (obj.X<xmax && (P.x < -curFoc.value || -curFoc.value < 0)) {
+				//pointille(mc,new createjs.Point(L.x, ordo),P, f);
+				pointille(mc,new createjs.Point(L.x, ordo),new createjs.Point(xmax,yfin), couEmergent);
 			}
 			else {
-				pointille(ray,new Point(L.x, ordo),new Point(xmax, yfin), f);
+				//pointille(ray,new createjs.Point(L.x, ordo),new Point(xmax, yfin), f);
 			}
 		}
 	}
@@ -547,8 +585,8 @@ function init() {
 
 		
 	
-function signer(date,cou){
-	var sig = new createjs.Text('GT '+date, "bold 16px Arial",cou )
+function signer(date,couL){
+	var sig = new createjs.Text('GT '+date, "bold 16px Arial",couL)
 	sig.lineWidth=50
 	sig.textAlign = "center";
 	return sig
