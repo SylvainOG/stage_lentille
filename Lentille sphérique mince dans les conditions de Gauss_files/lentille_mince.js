@@ -36,6 +36,42 @@ function init() {
 	var axe=new createjs.Shape()
 	axe.graphics.beginStroke('#639AFF').moveTo(-w/2,0).lineTo(w/2,0)
 	
+	
+	//parametres
+
+	function getParametres() {
+		var vars = {};
+		var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+			vars[key] = value;
+		});
+		return vars;
+	}
+
+	var A1 = {
+		min : getParametres()["A1_min"],
+		max : Number(getParametres()["A1_max"]),
+		fixe : getParametres()["A1_fixe"],
+		value : getParametres()["A1_value"]
+	};
+	var B1 = {
+		min : getParametres()["B1_min"],
+		max : getParametres()["B1_max"],
+		fixe : getParametres()["B1_fixe"],
+		value : getParametres()["B1_value"]
+	};
+	var Objet_lentille = {
+		min : getParametres()["Lentille_min"],
+		max : getParametres()["Lentille_max"],
+		fixe : getParametres()["Lentille_fixe"],
+		value : getParametres()["Lentille_value"]
+	};
+	var Objet_curseur = {
+		min : getParametres()["Curseur_min"],
+		max : getParametres()["Curseur_max"],
+		fixe : getParametres()["Curseur_fixe"],
+		value : getParametres()["Curseur_value"]
+	};
+	
 	//bouton du fond
 	var ssb = new createjs.SpriteSheetBuilder();
 	var frame0 = new createjs.Container()
@@ -239,11 +275,25 @@ function init() {
 	pA1.on("mousedown",function(evt) {
 		depart = evt.target.globalToLocal(evt.stageX,evt.stageY);
 	})
+	
+	// if(A1_min != null) {
+		// console.log(A1_min);
+	// }
+
+	
 	pA1.on("pressmove",function(evt) {
-		pA1.x = evt.stageX-depart.x-systeme.x;
-		pB1.x=pA1.x
-		calcule()  
+		console.log(pA1.x, A1.max);
+		if(pA1.x <= A1.max && pA1.x >= A1.min) {
+			pA1.x = evt.stageX-depart.x-systeme.x;
+			pB1.x = pA1.x;
+		}
+		else {
+			pA1.x = pA1.x;
+			pB1.x = pA1.x;
+		}
+		calcule();
 	});
+	
 	
 	pB1.on("mousedown",function(evt) {
 		depart = evt.target.globalToLocal(evt.stageX,evt.stageY);
@@ -346,13 +396,6 @@ function init() {
 	//signature
 	var signature=signer('08/2018',couL).set({x:340,y:270});
 	
-	//limites
-	const formulaire = document.getElementById('parametres');
-	const A1_min = formulaire.elements['A1_min'].value;
-	console.log(A1_min);
-	//alert(A1_min);
-	
-	//var formu = document.forms("parametres");
 	
 	stage.addChild(systeme,aide);
 	systeme.addChild(sens,axe,contGrille,lentille,curFoc,btinf,btfaisc,btgrille,btaff,rayons,aff,pA1,pB1,txA2,txB2,paletteIncident,paletteEmergent,donne,signature);
@@ -550,7 +593,7 @@ function init() {
 		var ydeb=ordo+(xmin-L.x)*pente;
 		var depart=new createjs.Point(xmin,ydeb);
 		var inci=new createjs.Point(L.x,ordo);
-		var F = new createjs.Point(-curFoc.value,0);
+		var F = new createjs.Point(-curFoc.value + lentille.x,0);
 		
 		mc.graphics.setStrokeStyle(ep).beginStroke(couIncident);
 		if (obj.reel) {

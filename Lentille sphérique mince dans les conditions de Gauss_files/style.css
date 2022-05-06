@@ -72,6 +72,9 @@ text-decoration : none;
 	/* text-align : center; */
 	padding : 10px;
 }
+input[type="number"] {
+	width : 40px;
+}
 
 header {
 margin : 10px;
