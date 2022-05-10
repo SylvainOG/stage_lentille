@@ -36,40 +36,30 @@ function init() {
 	var axe=new createjs.Shape()
 	axe.graphics.beginStroke('#639AFF').moveTo(-w/2,0).lineTo(w/2,0)
 	
-	
-	//parametres
-
-	function getParametres() {
-		var vars = {};
-		var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-			vars[key] = value;
-		});
-		return vars;
-	}
-
+	//parametres par défaut
 	var A1 = {
-		min : getParametres()["A1_min"],
-		max : Number(getParametres()["A1_max"]),
-		fixe : getParametres()["A1_fixe"],
-		value : getParametres()["A1_value"]
+		min : getParametre("A1_min",-w/2),
+		max : getParametre("A1_max",w/2),
+		fixe : getParametre("A1_fixe",false),
+		value : getParametre("A1_value",-120)
 	};
 	var B1 = {
-		min : getParametres()["B1_min"],
-		max : getParametres()["B1_max"],
-		fixe : getParametres()["B1_fixe"],
-		value : getParametres()["B1_value"]
+		min : getParametre("B1_min",-h/2 + 44),
+		max : getParametre("B1_max",h/2 + 44),
+		fixe : getParametre("B1_fixe",false),
+		value : getParametre("B1_value",-40)
 	};
 	var Objet_lentille = {
-		min : getParametres()["Lentille_min"],
-		max : getParametres()["Lentille_max"],
-		fixe : getParametres()["Lentille_fixe"],
-		value : getParametres()["Lentille_value"]
+		min : getParametre("Lentille_min",-w/2),
+		max : getParametre("Lentille_max",w/2),
+		fixe : getParametre("Lentille_fixe",false),
+		value : getParametre("Lentille_value",0)
 	};
 	var Objet_curseur = {
-		min : getParametres()["Curseur_min"],
-		max : getParametres()["Curseur_max"],
-		fixe : getParametres()["Curseur_fixe"],
-		value : getParametres()["Curseur_value"]
+		min : getParametre("Curseur_min",-200),
+		max : getParametre("Curseur_max",200),
+		fixe : getParametre("Curseur_fixe",false),
+		value : getParametre("Curseur_value",80)
 	};
 	
 	//bouton du fond
@@ -114,7 +104,15 @@ function init() {
 	//lentille
 	var lentille=new Lentille(couL)
 	lentille.on("pressmove",function(evt) {
-		evt.currentTarget.x = evt.stageX-depart.x-systeme.x;
+		if((evt.stageX-depart.x-systeme.x) >= Objet_lentille.min && (evt.stageX-depart.x-systeme.x) <= Objet_lentille.max) {
+			evt.currentTarget.x = evt.stageX-depart.x-systeme.x;
+		}
+		else if((evt.stageX-depart.x-systeme.x) < Objet_lentille.min) {
+			evt.currentTarget.x = Objet_lentille.min;
+		}
+		else if((evt.stageX-depart.x-systeme.x) > Objet_lentille.max) {
+			evt.currentTarget.x = Objet_lentille.max;
+		}
 		stage.update()
 		calcule();   
 	});
@@ -126,7 +124,18 @@ function init() {
 	foc = curFoc.value;
 	lentille.foc=foc
 	curFoc.on("pressmove",function(evt) {
-		foc=curFoc.value;
+		console.log(Objet_curseur.min,Objet_curseur.max,curFoc.value);
+		if(curFoc.value >= Objet_curseur.min && curFoc.value <= Objet_curseur.max) {			
+			foc=curFoc.value;
+		}
+		else if(curFoc.value < Objet_curseur.min) {
+			foc = Objet_curseur.min;
+			curFoc.value = Objet_curseur.min;
+		}
+		else if(curFoc.value > Objet_curseur.max) {
+			foc = Objet_curseur.max;
+			curFoc.value = Objet_curseur.max;
+		}
 		lentille.foc=foc;
 		stage.update();
 		calcule()
@@ -271,35 +280,38 @@ function init() {
 	pA1.addChild(txA1,showA);
 	pB1.addChild(txB1,showB)
 	
-	
+
 	pA1.on("mousedown",function(evt) {
 		depart = evt.target.globalToLocal(evt.stageX,evt.stageY);
 	})
 	
-	// if(A1_min != null) {
-		// console.log(A1_min);
-	// }
-
-	
 	pA1.on("pressmove",function(evt) {
-		console.log(pA1.x, A1.max);
-		if(pA1.x <= A1.max && pA1.x >= A1.min) {
+		if((evt.stageX-depart.x-systeme.x) >= A1.min && (evt.stageX-depart.x-systeme.x) <= A1.max) {
 			pA1.x = evt.stageX-depart.x-systeme.x;
-			pB1.x = pA1.x;
 		}
-		else {
-			pA1.x = pA1.x;
-			pB1.x = pA1.x;
+		else if((evt.stageX-depart.x-systeme.x) < A1.min){
+			pA1.x = A1.min;
 		}
+		else if((evt.stageX-depart.x-systeme.x) > A1.max){
+			pA1.x = A1.max;
+		}
+		pB1.x = pA1.x;	
 		calcule();
 	});
-	
 	
 	pB1.on("mousedown",function(evt) {
 		depart = evt.target.globalToLocal(evt.stageX,evt.stageY);
 	})
 	pB1.on("pressmove",function(evt) {
-		pB1.y = evt.stageY-depart.y-systeme.y;
+		if((evt.stageY-depart.y-systeme.y) >= B1.min && (evt.stageY-depart.y-systeme.y) <= B1.max) {
+			pB1.y = evt.stageY-depart.y-systeme.y;
+		}
+		else if((evt.stageY-depart.y-systeme.y) < B1.min) {
+			pB1.y = B1.min;
+		}
+		else if((evt.stageY-depart.y-systeme.y) > B1.max) {
+			pB1.y = B1.max;
+		}
 		calcule(); 
 	});
 	sto=new createjs.Point(pA1.x,pB1.y);
@@ -410,12 +422,8 @@ function init() {
 		affiche();
 		rayons.graphics.clear();
 		
+		//console.log(A1.min,A1.max,A1.fixe,A1.value,B1.min,B1.max,B1.fixe,B1.value,Objet_lentille.min,Objet_lentille.max,Objet_lentille.fixe,Objet_lentille.value,Objet_curseur.min,Objet_curseur.max,Objet_curseur.fixe,Objet_curseur.value);
 
-
-		// if(ob.X < A1_min) {
-			// ob.X = A1_min;
-		// }
-		
 		fleche(rayons,ob,'#F00');
 		fleche(rayons,im,'#69F');
 		
@@ -482,7 +490,7 @@ function init() {
 				pointille(mc,P, new createjs.Point(L.x, ordo), '#AAA');
 				if(curFoc.value < 0) {
 					pointille(mc,P, new createjs.Point(L.x, ordo), '#AAA');
-					pointille(mc,new createjs.Point(xmax,yprevu), new createjs.Point(L.x, ordo), couEmergent);
+					pointille(mc,new createjs.Point(xmax,yprevu), new createjs.Point(L.x, ordo), couIncident);
 				}
 			//}
 			mc.graphics.setStrokeStyle(ep).beginStroke(couEmergent);
@@ -543,7 +551,7 @@ function init() {
 				}
 				else {
 					txtimg.text = "position image : "+((im.X-lentille.x)*coef).toFixed(1)+" cm";
-					txtgamma.text="grandissement : "+(im.gamma).toFixed(2);
+					//txtgamma.text="grandissement : "+(im.gamma).toFixed(2);
 				}
 			}
 		}
@@ -616,7 +624,7 @@ function init() {
 			
 			if (obj.X<xmax && (P.x < -curFoc.value || -curFoc.value < 0)) {
 				//pointille(mc,new createjs.Point(L.x, ordo),P, f);
-				pointille(mc,new createjs.Point(L.x, ordo),new createjs.Point(xmax,yfin), couEmergent);
+				pointille(mc,new createjs.Point(L.x, ordo),new createjs.Point(xmax,yfin), couIncident);
 			}
 			else {
 				//pointille(ray,new createjs.Point(L.x, ordo),new Point(xmax, yfin), f);
@@ -688,6 +696,47 @@ function positionne(ob,pt){
 	ob.x=pt.x
 	ob.y=pt.y
 }
+
+//parametres
+function getParametre(parametre, defaultvalue){
+    var urlparameter = defaultvalue;
+    if(window.location.href.indexOf(parametre) > -1){
+        urlparameter = getUrlValue()[parametre];
+    }
+	if (urlparameter !== undefined && urlparameter != '') {
+		return urlparameter;
+	} else {
+		return defaultvalue;
+	}
+}
+
+function getUrlValue() {
+	var vars = {};
+	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+		vars[key] = value;
+	});
+	return vars;
+}
+
+// function getParametres() {
+	// A1.min = getUrlValue()["A1_min"];
+	// A1.max = getUrlValue()["A1_max"];
+	// A1.fixe = getUrlValue()["A1_fixe"];
+	// A1.value = getUrlValue()["A1_value"];
+	// B1.min = getUrlValue()["B1_min"];
+	// B1.max = getUrlValue()["B1_max"];
+	// B1.fixe = getUrlValue()["B1_fixe"];
+	// B1.value = getUrlValue()["B1_value"];
+	// Objet_curseur.min = getUrlValue()["Curseur_min"];
+	// Objet_curseur.max = getUrlValue()["Curseur_max"];
+	// Objet_curseur.fixe = getUrlValue()["Curseur_fixe"];
+	// Objet_curseur.value = getUrlValue()["Curseur_value"];
+	// Objet_lentille.min = getUrlValue()["Lentille_min"];
+	// Objet_lentille.max = getUrlValue()["Lentille_max"];
+	// Objet_lentille.fixe = getUrlValue()["Lentille_fixe"];
+	// Objet_lentille.value = getUrlValue()["Lentille_value"];
+// }
+
 ////////////Objets//////////////:
 
 
