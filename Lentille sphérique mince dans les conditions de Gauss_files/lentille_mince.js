@@ -22,12 +22,7 @@ function init() {
 	createjs.Ticker.addEventListener("tick", stage)
 	//createjs.Ticker.timingMode = createjs.Ticker.RAF;
 
-	var txtEmploi='- le curseur permet de choisir la distance focale de la lentille \n- cliquer-glisser sur le point A1 pour déplacer l\'objet, et sur le point B1 pour changer sa hauteur. Un bouton permet de le placer à l\'infini. \n- cliquer-glisser sur la lentille pour la déplacer \n- un bouton permet de choisir entre un faisceau ou 3 rayons \n- un autre bouton permet d\'afficher/cacher une grille \n- un dernier bouton permet d\'afficher/cacher les valeurs numériques \n- la palette située à gauche permet de changer la couleur des rayons ou la couleur de fond'
-		
-	var aide=new Aide(65,60,txtEmploi);
-	aide.x=40;
-	aide.y=40;
-//			
+
 
 	//systeme
 	var systeme = new createjs.Container();
@@ -36,7 +31,7 @@ function init() {
 	var axe=new createjs.Shape()
 	axe.graphics.beginStroke('#639AFF').moveTo(-w/2,0).lineTo(w/2,0)
 	
-	//parametres par défaut
+	//parametres
 	var A1 = {
 		min : Number(getParametre("A1_min",-w/2)),
 		max : Number(getParametre("A1_max",w/2)),
@@ -61,19 +56,19 @@ function init() {
 		fixe : Boolean(getParametre("Curseur_fixe",false)),
 		value : Number(getParametre("Curseur_value",80))
 	};
+	var afficheMain = Boolean(getParametre("afficheMain",false));
+	
 	//console.log(document.getElementsByName("A1_min")[0].value, document.querySelector("[name='p']").value);
-	document.getElementsByName("A1_min")[0].placeholder = A1.min;
-	document.getElementsByName("A1_max")[0].placeholder = A1.max;
-	document.getElementsByName("A1_value")[0].placeholder = A1.value;
-	document.getElementsByName("B1_min")[0].placeholder = B1.min;
-	document.getElementsByName("B1_max")[0].placeholder = B1.max;
-	document.getElementsByName("B1_value")[0].placeholder = B1.value;
-	document.getElementsByName("Lentille_min")[0].placeholder = lentilleHTML.min;
-	document.getElementsByName("Lentille_max")[0].placeholder = lentilleHTML.max;
-	document.getElementsByName("Lentille_value")[0].placeholder = lentilleHTML.value;
-	document.getElementsByName("Curseur_min")[0].placeholder = distanceFocale.min;
-	document.getElementsByName("Curseur_max")[0].placeholder = distanceFocale.max;
-	document.getElementsByName("Curseur_value")[0].placeholder = distanceFocale.value;
+
+	//aide
+	var txtEmploi='- le curseur permet de choisir la distance focale de la lentille \n- cliquer-glisser sur le point A1 pour déplacer l\'objet, et sur le point B1 pour changer sa hauteur. Un bouton permet de le placer à l\'infini. \n- cliquer-glisser sur la lentille pour la déplacer \n- un bouton permet de choisir entre un faisceau ou 3 rayons \n- un autre bouton permet d\'afficher/cacher une grille \n- un dernier bouton permet d\'afficher/cacher les valeurs numériques \n- la palette située à gauche permet de changer la couleur des rayons ou la couleur de fond'
+	var aide=new Aide(65,60,txtEmploi);
+	aide.x=40;
+	aide.y=40;
+	aide.visible = false;
+	if(afficheMain) {
+		aide.visible = true;
+	}
 	
 	//bouton du fond
 	var ssb = new createjs.SpriteSheetBuilder();
@@ -141,6 +136,13 @@ function init() {
 		stage.update()
 		calcule();   
 	});
+	var txPositionLentille = new createjs.Text('',"14px Arial",couL);
+	txPositionLentille.x = 25;
+	txPositionLentille.y = -120;
+	txPositionLentille.visible = false;
+	lentille.addChild(txPositionLentille);
+	
+	
 
 	//curseur de distance focale
 	var curFoc = new Curseur(-200,200,200,distanceFocale.value,distanceFocale.fixe,'#F00');
@@ -235,8 +237,11 @@ function init() {
 	btaff.x=140
 	btaff.y =250;
 	btaff.on("click", function(){
-		aff.visible=!aff.visible
-		calcule()
+		aff.visible=!aff.visible;
+		txPositionA1.visible = !txPositionA1.visible;
+		txPositionB1.visible = !txPositionB1.visible;
+		txPositionLentille.visible = !txPositionLentille.visible;
+		calcule();
 	})
 	
 	//rayons
@@ -274,17 +279,25 @@ function init() {
 	pB1.hitArea=rond;
 	
 	var txA1=new createjs.Text('A1', "bold 16px Arial", '#F00');
+	var txPositionA1 = new createjs.Text('', "14px Arial", '#F00');
 	var txA2=new createjs.Text('A2', "bold 16px Arial", '#639AFF');
 	var txB1=new createjs.Text('B1', "bold 16px Arial", '#F00');
+	var txPositionB1 = new createjs.Text('', "14px Arial", '#F00');
 	var txB2=new createjs.Text('B2', "bold 16px Arial", '#639AFF');
 	txA1.x=-10;
 	txA1.y=-10;
+	txPositionA1.x = -10;
+	txPositionA1.y = 30;
 	txB1.x=-10;
 	txB1.y=-10;
+	txPositionB1.x = -45;
+	txPositionB1.y = -5;
 	txA2.x=-10;
 	txA2.y=-10;
 	txB2.x=-10;
 	txB2.y=-10;
+	txPositionA1.visible = false;
+	txPositionB1.visible = false;
 	
 	var showA=new createjs.Shape();
 	showA.graphics.setStrokeStyle(2).beginStroke('#F00').drawCircle(0,0,7);
@@ -319,8 +332,8 @@ function init() {
 	.to({alpha: 0}, 200)
 	.to({alpha: 1}, 200)
   
-	pA1.addChild(txA1,showA);
-	pB1.addChild(txB1,showB);
+	pA1.addChild(txA1,txPositionA1,showA);
+	pB1.addChild(txB1,txPositionB1,showB);
 	
 
 	pA1.on("mousedown",function(evt) {
@@ -381,7 +394,7 @@ function init() {
 	txtgamma.x=10
 	txtgamma.y=70
 	
-	aff.addChild(fondAff,txtfoc,txtobj,txtimg,txtgamma)
+	aff.addChild(fondAff,txtfoc,txtobj,txtimg,txtgamma);
 	
 	//palette de couleurs
 	var paletteIncident=new createjs.Container().set({x:-380,y:10});
@@ -559,7 +572,19 @@ function init() {
 
 	function affiche(){
 		txA1.y=ob.Y<0?10:-25;
+		txPositionA1.y = ob.Y<0 ? 30:-45;
 		txB1.y=ob.Y<0?-22:17;
+		if(ob.X > 0) {
+			if(ob.Y > 0) {
+				txPositionB1.y = 40;
+			}
+			else {
+				txPositionB1.y = -40;
+			}
+		}
+		else {
+			txPositionB1.y = -5;
+		}
 		txA2.x=im.X-10;
 		txA2.y=im.Y<0?10:-25;
 		txB2.x=txA2.x;
@@ -600,6 +625,9 @@ function init() {
 				}
 			}
 		}
+		txPositionA1.text = ((ob.X-lentille.x)*coef).toFixed(1);
+		txPositionB1.text = (ob.Y * coef).toFixed(1);
+		txPositionLentille.text = (lentille.x * coef).toFixed(1);
 	}
 		
 	function image(objet,L){
@@ -744,13 +772,22 @@ function positionne(ob,pt){
 
 //parametres
 function getParametre(parametre, defaultvalue){
-    var urlparameter = defaultvalue;
+    var urlparameter;
+	var elementHTML = document.getElementsByName(parametre)[0];
+	
     if(window.location.href.indexOf(parametre) > -1){
         urlparameter = getUrlValue()[parametre];
     }
 	if (urlparameter !== undefined && urlparameter != '') {
+		if(elementHTML.type == "checkbox") {
+			elementHTML.checked = true;
+		}
+		else {
+			elementHTML.value = urlparameter;
+		}
 		return urlparameter;
 	} else {
+		// document.getElementsByName(parametre)[0].placeholder = defaultvalue;
 		return defaultvalue;
 	}
 }
@@ -762,25 +799,6 @@ function getUrlValue() {
 	});
 	return vars;
 }
-
-// function getParametres() {
-	// A1.min = getUrlValue()["A1_min"];
-	// A1.max = getUrlValue()["A1_max"];
-	// A1.fixe = getUrlValue()["A1_fixe"];
-	// A1.value = getUrlValue()["A1_value"];
-	// B1.min = getUrlValue()["B1_min"];
-	// B1.max = getUrlValue()["B1_max"];
-	// B1.fixe = getUrlValue()["B1_fixe"];
-	// B1.value = getUrlValue()["B1_value"];
-	// distanceFocale.min = getUrlValue()["Curseur_min"];
-	// distanceFocale.max = getUrlValue()["Curseur_max"];
-	// distanceFocale.fixe = getUrlValue()["Curseur_fixe"];
-	// distanceFocale.value = getUrlValue()["Curseur_value"];
-	// lentilleHTML.min = getUrlValue()["Lentille_min"];
-	// lentilleHTML.max = getUrlValue()["Lentille_max"];
-	// lentilleHTML.fixe = getUrlValue()["Lentille_fixe"];
-	// lentilleHTML.value = getUrlValue()["Lentille_value"];
-// }
 
 ////////////Objets//////////////:
 
@@ -866,8 +884,8 @@ function getUrlValue() {
 		}
 		this.cursor="pointer"
 				  
-		this.addChild(verre,pointes,tL,O,F1,F2,fleches)
-		stage.update()
+		this.addChild(verre,pointes,tL,O,F1,F2,fleches);
+		stage.update();
 			
 		Object.defineProperty(this, "foc", {
 		get: function() { return this.focale},
@@ -914,7 +932,6 @@ function getUrlValue() {
 		
 		this.addChild(ligne, txt, circle);
 		this.on("pressmove",function(evt) {
-			console.log(this.fixe);
 			if(evt.target.name=='circle' && this.fixe === false){
 				cx=evt.localX
 				cx=cx<0?0:cx
