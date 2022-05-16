@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- saved from url=(0079)https://phyanim.sciences.univ-nantes.fr/optiqueGeo/lentilles/lentille_mince.php -->
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html id="origine"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-<link rel="stylesheet" href="./Lentille sphérique mince dans les conditions de Gauss_files/style.css" type="text/css" media="screen">
-<link rel="stylesheet" href="./Lentille sphérique mince dans les conditions de Gauss_files/bleu.css" type="text/css" media="screen">
+<link rel="stylesheet" href="./ressources/style.css" type="text/css" media="screen">
+<link rel="stylesheet" href="./ressources/bleu.css" type="text/css" media="screen">
 
 <meta name="author" content="Geneviève Tulloue">
 <meta name="copyright" content="© G.TULLOUE">
@@ -21,9 +21,9 @@
 					<tbody>
 						<tr>
 							<td>
-								<script src="./Lentille sphérique mince dans les conditions de Gauss_files/createjs.min.js"></script>
-								<script src="./Lentille sphérique mince dans les conditions de Gauss_files/utils.js"></script>
-								<script src="./Lentille sphérique mince dans les conditions de Gauss_files/lentille_mince.js"></script>
+								<script src="./ressources/createjs.min.js"></script>
+								<script src="./ressources/utils.js"></script>
+								<script src="./ressources/lentille_mince.js"></script>
 								<div id="animation" style="background-color: rgb(0, 0, 102);"><canvas id="testCanvas" width="800" height="560" style="background-color: rgb(0, 0, 102);"></canvas></div>
 							</td>
 						</tr>
@@ -35,22 +35,73 @@
 			<form method="get" id="parametres">
 				<h3 align="center">Paramètres</h3>
 				<br>
-				<strong>A1</strong> : min <input type="number" name="A1_min"> max <input type="number" name="A1_max"> <input type="checkbox" name="A1_fixe" value="true">Fixe <input type="number" name="A1_value">
+				<strong>A1 :</strong> 
+				<span>
+					min <input type="number" name="A1_min"> 
+					max <input type="number" name="A1_max"> 
+					<input type="checkbox" id="A1_fixe" name="A1_fixe" value="true"><label for="A1_fixe">Fixe </label>
+					<input type="number" name="A1_value">
+				</span> 
 				<br>
 				<br>
-				<strong>B1</strong> : min <input type="number" name="B1_min"> max <input type="number" name="B1_max"> <input type="checkbox" name="B1_fixe" value="true">Fixe <input type="number" name="B1_value">
+				<strong>B1 :</strong> 
+				<span>
+					min <input type="number" name="B1_min"> 
+					max <input type="number" name="B1_max"> 
+					<input type="checkbox" id="B1_fixe" name="B1_fixe" value="true"><label for="B1_fixe">Fixe </label>
+					<input type="number" name="B1_value">
+				</span>
 				<br>
 				<br>
-				<strong>Lentille</strong> : min <input type="number" name="Lentille_min" checked> max <input type="number" name="Lentille_max"> <input type="checkbox" name="Lentille_fixe" value="true">Fixe <input type="number" name="Lentille_value">
+				<strong>Lentille :</strong> 
+				<span>
+					min <input type="number" name="Lentille_min"> 
+					max <input type="number" name="Lentille_max"> 
+					<input type="checkbox" id="Lentille_fixe" name="Lentille_fixe" value="true"><label for="Lentille_fixe">Fixe </label>
+					<input type="number" name="Lentille_value">
+				</span>
 				<br>
 				<br>
-				<strong>Curseur</strong> : min <input type="number" name="Curseur_min"> max <input type="number" name="Curseur_max"> <input type="checkbox" name="Curseur_fixe" value="true">Fixe <input type="number" name="Curseur_value">
+				<strong>Curseur :</strong> 
+				<span>
+					min <input type="number" name="Curseur_min"> 
+					max <input type="number" name="Curseur_max"> 
+					<input type="checkbox" id="Curseur_fixe" name="Curseur_fixe" value="true"><label for="Curseur_fixe">Fixe </label>
+					<input type="number" name="Curseur_value">
+				</span>
 				<br>
 				<br>
-				Afficher la main d'aide <input type="checkbox" name="afficheMain" value="true">
+				
+				<h3 align="center">Options</h3>
+				<div>
+					<div class="optionGauche">
+						<label for="objInfini">Objet à l'infini</label>
+						<input type="checkbox" name="objInfini" id="objInfini" value="true">
+					</div>
+					<div class="optionDroite">
+						<input type="checkbox" name="afficherGrille" id="afficherGrille" value="true">
+						<label for="afficherGrille">Afficher une grille</label>
+					</div>
+				</div>
+				<br>
+				<div class="options">
+					<div class="optionGauche">
+						<label for="modeFaisceau">Mode faisceau</label>
+						<input type="checkbox" name="modeFaisceau" id="modeFaisceau" value="true">
+					</div>
+					<div class="optionDroite">
+						<input type="checkbox" name="afficherValeurs" id="afficherValeurs" value="true">
+						<label for="afficherValeurs">Afficher les valeurs</label>
+					</div>
+				</div>
+				
+				<label for="afficheMain">Afficher la main d'aide</label>
+				<input type="checkbox" name="afficheMain" id="afficheMain" value="true">
 				<br>
 				<br>
 				<input type="submit" value="Appliquer"> <input type="reset" value="Réinitialiser">
+				<br>
+				<input type="button" value="Générer" onclick="generer()">
 			</form>
 		</div>
 	</div>
