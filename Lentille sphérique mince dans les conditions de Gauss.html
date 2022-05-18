@@ -14,6 +14,79 @@
 </head>
 <body onload="init()">
 	<div class="racine">
+		<div class="container" id="limites">
+			<form method="post" id="parametres">
+				<h3 align="center">Paramètres</h3>
+				<br>
+				<strong>A1 :</strong> 
+				<span>
+					min <input type="number" id="A1_min" value="-400"> 
+					max <input type="number" id="A1_max" value="400"> 
+					<input type="checkbox" id="A1_fixe"><label for="A1_fixe">Fixe </label>
+					<input type="number" id="A1_value" value="-120">
+				</span> 
+				<br>
+				<br>
+				<strong>B1 :</strong> 
+				<span>
+					min <input type="number" id="B1_min" value="-236"> 
+					max <input type="number" id="B1_max" value="324"> 
+					<input type="checkbox" id="B1_fixe"><label for="B1_fixe">Fixe </label>
+					<input type="number" id="B1_value" value="-40">
+				</span>
+				<br>
+				<br>
+				<strong>Lentille :</strong> 
+				<span>
+					min <input type="number" id="Lentille_min" value="-400"> 
+					max <input type="number" id="Lentille_max" value="400"> 
+					<input type="checkbox" id="Lentille_fixe"><label for="Lentille_fixe">Fixe </label>
+					<input type="number" id="Lentille_value" value="0">
+				</span>
+				<br>
+				<br>
+				<strong>Curseur :</strong> 
+				<span>
+					min <input type="number" id="Curseur_min" value="-200"> 
+					max <input type="number" id="Curseur_max" value="200"> 
+					<input type="checkbox" id="Curseur_fixe"><label for="Curseur_fixe">Fixe </label>
+					<input type="number" id="Curseur_value" value="80">
+				</span>
+				<br>
+				<br>
+				
+				<h3 align="center">Options</h3>
+				<div>
+					<div class="optionGauche">
+						<label for="objInfini">Objet à l'infini</label>
+						<input type="checkbox" id="objInfini" value="false">
+					</div>
+					<div class="optionDroite">
+						<input type="checkbox" id="afficherGrille" value="false">
+						<label for="afficherGrille">Afficher une grille</label>
+					</div>
+				</div>
+				<br>
+				<div class="options">
+					<div class="optionGauche">
+						<label for="modeFaisceau">Mode faisceau</label>
+						<input type="checkbox" id="modeFaisceau" value="true">
+					</div>
+					<div class="optionDroite">
+						<input type="checkbox" id="afficherValeurs" value="true">
+						<label for="afficherValeurs">Afficher les valeurs</label>
+					</div>
+				</div>
+				
+				<label for="afficheMain">Afficher la main d'aide</label>
+				<input type="checkbox" id="afficheMain" value="false">
+				<br>
+				<br>
+				<input type="button" value="Appliquer" onclick="setParametres()"> <input type="reset" value="Réinitialiser">
+				<br>
+				<input type="button" value="Générer" onclick="generer()">
+			</form>
+		</div>
 		<div class="container" id="conteneur">
 			<article class="anim">
 				<h1>Lentille sphérique mince dans les conditions de Gauss</h1>
@@ -30,79 +103,6 @@
 					</tbody>
 				</table>
 			</article>
-		</div>
-		<div class="container" id="limites">
-			<form method="get" id="parametres">
-				<h3 align="center">Paramètres</h3>
-				<br>
-				<strong>A1 :</strong> 
-				<span>
-					min <input type="number" name="A1_min"> 
-					max <input type="number" name="A1_max"> 
-					<input type="checkbox" id="A1_fixe" name="A1_fixe" value="true"><label for="A1_fixe">Fixe </label>
-					<input type="number" name="A1_value">
-				</span> 
-				<br>
-				<br>
-				<strong>B1 :</strong> 
-				<span>
-					min <input type="number" name="B1_min"> 
-					max <input type="number" name="B1_max"> 
-					<input type="checkbox" id="B1_fixe" name="B1_fixe" value="true"><label for="B1_fixe">Fixe </label>
-					<input type="number" name="B1_value">
-				</span>
-				<br>
-				<br>
-				<strong>Lentille :</strong> 
-				<span>
-					min <input type="number" name="Lentille_min"> 
-					max <input type="number" name="Lentille_max"> 
-					<input type="checkbox" id="Lentille_fixe" name="Lentille_fixe" value="true"><label for="Lentille_fixe">Fixe </label>
-					<input type="number" name="Lentille_value">
-				</span>
-				<br>
-				<br>
-				<strong>Curseur :</strong> 
-				<span>
-					min <input type="number" name="Curseur_min"> 
-					max <input type="number" name="Curseur_max"> 
-					<input type="checkbox" id="Curseur_fixe" name="Curseur_fixe" value="true"><label for="Curseur_fixe">Fixe </label>
-					<input type="number" name="Curseur_value">
-				</span>
-				<br>
-				<br>
-				
-				<h3 align="center">Options</h3>
-				<div>
-					<div class="optionGauche">
-						<label for="objInfini">Objet à l'infini</label>
-						<input type="checkbox" name="objInfini" id="objInfini" value="true">
-					</div>
-					<div class="optionDroite">
-						<input type="checkbox" name="afficherGrille" id="afficherGrille" value="true">
-						<label for="afficherGrille">Afficher une grille</label>
-					</div>
-				</div>
-				<br>
-				<div class="options">
-					<div class="optionGauche">
-						<label for="modeFaisceau">Mode faisceau</label>
-						<input type="checkbox" name="modeFaisceau" id="modeFaisceau" value="true">
-					</div>
-					<div class="optionDroite">
-						<input type="checkbox" name="afficherValeurs" id="afficherValeurs" value="true">
-						<label for="afficherValeurs">Afficher les valeurs</label>
-					</div>
-				</div>
-				
-				<label for="afficheMain">Afficher la main d'aide</label>
-				<input type="checkbox" name="afficheMain" id="afficheMain" value="true">
-				<br>
-				<br>
-				<input type="submit" value="Appliquer"> <input type="reset" value="Réinitialiser">
-				<br>
-				<input type="button" value="Générer" onclick="generer()">
-			</form>
 		</div>
 	</div>
 
