@@ -8,31 +8,7 @@ var filtre;
 var faisceau=false
 var tabCou=new Array(0xFF0000,0x00FF00,0x0000FF,0x9900FF,0x00CC99,0xFFFF00,0xFFCCFF,0x33FFFF,0xFFCC00,0xFFEFEF,0x000066);
 
-var A1 = {
-	min : Number(document.getElementById("A1_min").value),
-	max : Number(document.getElementById("A1_max").value),
-	fixe : Boolean(document.getElementById("A1_fixe").checked),
-	value : Number(document.getElementById("A1_value").value)
-};	
-var B1 = {
-	min : Number(document.getElementById("B1_min").value),
-	max : Number(document.getElementById("B1_max").value),
-	fixe : Boolean(document.getElementById("B1_fixe").checked),
-	value : Number(document.getElementById("B1_value").value)
-};
-var lentilleHTML = {
-	min : Number(document.getElementById("Lentille_min").value),
-	max : Number(document.getElementById("Lentille_max").value),
-	fixe : Boolean(document.getElementById("Lentille_fixe").checked),
-	value : Number(document.getElementById("Lentille_value").value)
-};
-var distanceFocale = {
-	min : Number(document.getElementById("Curseur_min").value),
-	max : Number(document.getElementById("Curseur_max").value),
-	fixe : Boolean(document.getElementById("Curseur_fixe").checked),
-	value : Number(document.getElementById("Curseur_value").value)
-};
-var afficheMain = Boolean(document.getElementById("afficheMain").value);
+
 
 // function parametrage(limite) {
 	// var saisie = document.getElementById(limite);
@@ -59,14 +35,47 @@ function init() {
 	var axe=new createjs.Shape()
 	axe.graphics.beginStroke('#639AFF').moveTo(-w/2,0).lineTo(w/2,0)
 
+	//parametres
+	var A1 = {
+		min : Number(document.getElementById("A1_min").value) / coef,
+		max : Number(document.getElementById("A1_max").value) / coef,
+		fixe : Boolean(document.getElementById("A1_fixe").checked),
+		value : Number(document.getElementById("A1_value").value) /coef
+	};	
+	var B1 = {
+		min : -(Number(document.getElementById("B1_min").value)) / coef,
+		max : -(Number(document.getElementById("B1_max").value)) / coef,
+		fixe : Boolean(document.getElementById("B1_fixe").checked),
+		value : -(Number(document.getElementById("B1_value").value)) / coef
+	};
+	var lentilleHTML = {
+		min : Number(document.getElementById("Lentille_min").value) / coef,
+		max : Number(document.getElementById("Lentille_max").value) / coef,
+		fixe : Boolean(document.getElementById("Lentille_fixe").checked),
+		value : Number(document.getElementById("Lentille_value").value) / coef
+	};
+	var distanceFocale = {
+		min : Number(document.getElementById("Curseur_min").value) / coef,
+		max : Number(document.getElementById("Curseur_max").value) / coef,
+		fixe : Boolean(document.getElementById("Curseur_fixe").checked),
+		value : Number(document.getElementById("Curseur_value").value) / coef
+	};
+	var objInfini = Boolean(document.getElementById("objInfini").checked);
+	var afficherGrille = Boolean(document.getElementById("afficherGrille").checked);
+	var modeFaisceau = Boolean(document.getElementById("modeFaisceau").checked);
+	var afficherValeurs = Boolean(document.getElementById("afficherValeurs").checked);
+	var afficheMain = Boolean(document.getElementById("afficheMain").checked);
+	
 	//aide
 	var txtEmploi='- le curseur permet de choisir la distance focale de la lentille \n- cliquer-glisser sur le point A1 pour déplacer l\'objet, et sur le point B1 pour changer sa hauteur. Un bouton permet de le placer à l\'infini. \n- cliquer-glisser sur la lentille pour la déplacer \n- un bouton permet de choisir entre un faisceau ou 3 rayons \n- un autre bouton permet d\'afficher/cacher une grille \n- un dernier bouton permet d\'afficher/cacher les valeurs numériques \n- la palette située à gauche permet de changer la couleur des rayons ou la couleur de fond'
 	var aide=new Aide(65,60,txtEmploi);
 	aide.x=40;
 	aide.y=40;
-	aide.visible = false;
 	if(afficheMain) {
 		aide.visible = true;
+	}
+	else {
+		aide.visible = false;
 	}
 	
 	//bouton du fond
@@ -121,7 +130,6 @@ function init() {
 	}
 	
 	lentille.on("pressmove",function(evt) {
-		console.log(lentilleHTML);
 		if(lentilleHTML.fixe === false) {
 			if((evt.stageX-depart.x-systeme.x) >= lentilleHTML.min && (evt.stageX-depart.x-systeme.x) <= lentilleHTML.max) {
 				evt.currentTarget.x = evt.stageX-depart.x-systeme.x;
@@ -199,20 +207,26 @@ function init() {
 	btinf.x=-290
 	btinf.y =212;
 	btinf.on("click", function(){
-		
-	inf=! inf;
-	if (inf) {
-		sto=new createjs.Point(pA1.x,pB1.y);
-		pA1.x=-1000000;
-		pB1.x=pA1.x
-		pB1.y=-1000000*sto.y/(sto.x-lentille.x);
+		inf=! inf;
+		if (inf) {
+			sto=new createjs.Point(pA1.x,pB1.y);
+			pA1.x=-1000000;
+			pB1.x=pA1.x;
+			pB1.y=-1000000*sto.y/(sto.x-lentille.x);
+		}
+		else {
+			pA1.x=sto.x;
+			pB1.x=sto.x;
+			pB1.y=sto.y;
+		}
+		calcule();
+	});
+	if(objInfini) {
+		btinf.visible = true;
 	}
 	else {
-		pA1.x=sto.x;
-		pB1.x=sto.x;
-		pB1.y=sto.y;
+		btinf.visible = false;
 	}
-		calcule()})
 			
 //			
 	//bouton "faisceau"
@@ -220,19 +234,30 @@ function init() {
 	btfaisc.x=-290;
 	btfaisc.y =250;
 	btfaisc.on("click", function(){
-		faisceau=!faisceau
-		calcule()
-	})
+		faisceau=!faisceau;
+		calcule();
+	});
+	if(modeFaisceau) {
+		btfaisc.visible = true;
+	}
+	else {
+		btfaisc.visible = false;
+	}
 	
 	//bouton "grille"
 	var btgrille = new Bouton("afficher une grille", "#50A",150);
 	btgrille.x=140
 	btgrille.y =212;
-	btgrille.visible = false;
 	btgrille.on("click", function(){
 		contGrille.visible=!contGrille.visible;
 		calcule()
 	});
+	if(afficherGrille) {
+		btgrille.visible = true;
+	}
+	else {
+		btgrille.visible = false;
+	}
 	
 	//bouton "valeurs"
 	var btaff = new Bouton("afficher les valeurs", "#50A",150);
@@ -246,6 +271,12 @@ function init() {
 		//txPositionLentille.visible = !txPositionLentille.visible;
 		calcule();
 	})
+	if(afficherValeurs) {
+		btaff.visible = true;
+	}
+	else {
+		btaff.visible = false;
+	}
 	
 	//rayons
 	var rayons=new createjs.Shape();
@@ -487,7 +518,7 @@ function init() {
 		affiche();
 		rayons.graphics.clear();
 		
-		console.log(A1.min,A1.max,A1.fixe,A1.value,B1.min,B1.max,B1.fixe,B1.value,lentilleHTML.min,lentilleHTML.max,lentilleHTML.fixe,lentilleHTML.value,distanceFocale.min,distanceFocale.max,distanceFocale.fixe,distanceFocale.value,afficheMain);
+		//console.log(A1.min,A1.max,A1.fixe,A1.value,B1.min,B1.max,B1.fixe,B1.value,lentilleHTML.min,lentilleHTML.max,lentilleHTML.fixe,lentilleHTML.value,distanceFocale.min,distanceFocale.max,distanceFocale.fixe,distanceFocale.value,afficheMain);
 
 		fleche(rayons,ob,'#F00');
 		fleche(rayons,im,'#69F');
@@ -583,6 +614,7 @@ function init() {
 		txPositionA1.y = ob.Y<0 ? 30:-45;
 		txB1.y=ob.Y<0?-22:17;
 		if(ob.X > 0) {
+			txPositionB1.x = -15;
 			if(ob.Y > 0) {
 				txPositionB1.y = 40;
 			}
@@ -591,6 +623,7 @@ function init() {
 			}
 		}
 		else {
+			txPositionB1.x = -45;
 			txPositionB1.y = -5;
 		}
 		txA2.x=im.X-10;
@@ -636,9 +669,9 @@ function init() {
 			}
 		}
 		txPositionA1.text = ((ob.X-lentille.x)*coef).toFixed(1);
-		txPositionB1.text = (ob.Y * coef).toFixed(1);
+		txPositionB1.text = -(ob.Y * coef).toFixed(1);
 		txPositionLentille.text = (lentille.x * coef).toFixed(1);
-		txPositionB2.text = (im.Y * coef).toFixed(1);
+		txPositionB2.text = -(im.Y * coef).toFixed(1);
 	}
 		
 	function image(objet,L){
@@ -706,15 +739,15 @@ function init() {
 			//objet virtuel
 			mc.graphics.setStrokeStyle(ep).beginStroke(couIncident);
 			rayon(mc,depart, inci, f);
-			
-			if (obj.X<xmax && (P.x <= -curFoc.value || -curFoc.value <= 0)) {
-				//pointille(mc,new createjs.Point(L.x, ordo),P, f);
+			console.log(P.x,-curFoc.value,F);
+			// if (obj.X<xmax && (P.x <= -curFoc.value || -curFoc.value <= 0)) {
+			if (obj.X<xmax && (P.x <= F.x || -curFoc.value <= 0)) {
 				pointille(mc,new createjs.Point(L.x, ordo),new createjs.Point(xmax,yfin), couIncident);
 			}
 			else {
 				//pointille(ray,new createjs.Point(L.x, ordo),new Point(xmax, yfin), f);
 			}
-			if(-curFoc.value >= P.x) {
+			if(F.x >= P.x) {
 				pointille(mc,new createjs.Point(L.x,P.y),Fbis,couEmergent);
 			}
 		}
@@ -816,30 +849,16 @@ function getUrlValue() {
 }
 
 function generer() {
-	// document.getElementById("limites").style.visibility = "hidden";
-	
 	var original = document.getElementById("origine");
-	console.log(original.getElementById("limites"));
-	console.log(original);
 	var clone = original.cloneNode(true);
-	console.log(clone);
-	//var conteneurLimites = clone.querySelector("#limites");
-	//conteneurLimites.remove();
+	var divFormulaire = clone.querySelector("#limites");
+	divFormulaire.style.display = "none";
 	var cloneTxt = clone.innerHTML;
-	console.log(cloneTxt);
-	//var urlSource = window.location.href;
-	//var debutParametre = urlSource.indexOf("?");
-	//var urlParametre = urlSource.slice(debutParametre);
 	
 	var fichier = new Blob([cloneTxt], {type: 'text/html'});
-	console.log(fichier);
 	var url = URL.createObjectURL(fichier);
-	console.log(url);
-	var urle = new URL(url);
-	//urle.search = "aaaaaaa";
-	console.log(urle);
 	
-var a = document.createElement("a");
+	var a = document.createElement("a");
 	a.href = url;
 	a.download = 'TP1';
 	a.click();
@@ -847,80 +866,36 @@ var a = document.createElement("a");
 	
 	setTimeout(function() {
 		document.body.removeChild(a);
-		//window.URL.revokeObjectURL(url);
+		window.URL.revokeObjectURL(url);
 	}, 0);
 }
 
 function setParametres() {
-	if(Number(document.getElementById("A1_min").value) != A1.min) {
-		A1.min = Number(document.getElementById("A1_min").value);
-		document.getElementById("A1_min").defaultValue = A1.min;
-	}
-	if(Number(document.getElementById("A1_max").value) != A1.max) {
-		A1.max = Number(document.getElementById("A1_max").value);
-		document.getElementById("A1_max").defaultValue = A1.max;
-	}
-	if(Number(document.getElementById("A1_value").value) != A1.value) {
-		A1.value = Number(document.getElementById("A1_value").value);
-		document.getElementById("A1_value").defaultValue = A1.value;
-	}
-	if(Boolean(document.getElementById("A1_fixe").checked) != A1.fixe) {
-		A1.fixe = Boolean(document.getElementById("A1_fixe").checked);
-		document.getElementById("A1_fixe").defaultChecked = A1.fixe;
-	}
+	var formulaire = document.getElementById("parametres");
+	var id;
+	var valeur;
+	var valeurDefaut;
+	var i;
 	
-	if(Number(document.getElementById("B1_min").value) != B1.min) {
-		B1.min = Number(document.getElementById("B1_min").value);
-		document.getElementById("B1_min").defaultValue = B1.min;
+	for(i = 0; i < formulaire.length; i++) {
+		id = formulaire.elements[i].id;
+		type = formulaire.elements[i].type;
+		if(type === "number") {
+			valeur = Number(formulaire.elements[i].value);
+			valeurDefaut = Number(formulaire.elements[i].defaultValue);
+			
+			if (valeur != valeurDefaut) {
+				formulaire.elements[i].defaultValue = valeur;
+			}
+		}
+		else if (type === "checkbox") {
+			valeur = formulaire.elements[i].checked;
+			valeurDefaut = formulaire.elements[i].defaultChecked;
+			if (valeur != valeurDefaut) {
+				formulaire.elements[i].defaultChecked = valeur;
+			}
+		}
 	}
-	if(Number(document.getElementById("B1_max").value) != B1.max) {
-		B1.max = Number(document.getElementById("B1_max").value);
-		document.getElementById("B1_max").defaultValue = B1.max;
-	}
-	if(Number(document.getElementById("B1_value").value) != B1.value) {
-		B1.value = Number(document.getElementById("B1_value").value);
-		document.getElementById("B1_value").defaultValue = B1.value;
-	}
-	if(Boolean(document.getElementById("B1_fixe").checked) != B1.fixe) {
-		B1.fixe = Boolean(document.getElementById("B1_fixe").checked);
-		document.getElementById("B1_fixe").defaultChecked = B1.fixe;
-	}
-	
-	if(Number(document.getElementById("Lentille_min").value) != lentilleHTML.min) {
-		lentilleHTML.min = Number(document.getElementById("Lentille_min").value);
-		document.getElementById("Lentille_min").defaultValue = lentilleHTML.min;
-	}
-	if(Number(document.getElementById("Lentille_max").value) != lentilleHTML.max) {
-		lentilleHTML.max = Number(document.getElementById("Lentille_max").value);
-		document.getElementById("Lentille_max").defaultValue = lentilleHTML.max;
-	}
-	if(Number(document.getElementById("Lentille_value").value) != lentilleHTML.value) {
-		lentilleHTML.value = Number(document.getElementById("Lentille_value").value);
-		document.getElementById("Lentille_value").defaultValue = lentilleHTML.value;
-	}
-	if(Boolean(document.getElementById("Lentille_fixe").checked) != lentilleHTML.fixe) {
-		lentilleHTML.fixe = Boolean(document.getElementById("Lentille_fixe").checked);
-		document.getElementById("Lentille_fixe").defaultChecked = lentilleHTML.fixe;
-	}
-	
-	if(Number(document.getElementById("Curseur_min").value) != distanceFocale.min) {
-		distanceFocale.min = Number(document.getElementById("Curseur_min").value);
-		document.getElementById("Curseur_min").defaultValue = distanceFocale.min;
-	}
-	if(Number(document.getElementById("Curseur_max").value) != distanceFocale.max) {
-		distanceFocale.max = Number(document.getElementById("Curseur_max").value);
-		document.getElementById("Curseur_max").defaultValue = distanceFocale.max;
-	}
-	if(Number(document.getElementById("Curseur_value").value) != distanceFocale.value) {
-		distanceFocale.value = Number(document.getElementById("Curseur_value").value);
-		document.getElementById("Curseur_value").defaultValue = distanceFocale.value;
-	}
-	if(Boolean(document.getElementById("Curseur_fixe").checked) != distanceFocale.fixe) {
-		distanceFocale.fixe = Boolean(document.getElementById("Curseur_fixe").checked);
-		document.getElementById("Curseur_fixe").defaultChecked = distanceFocale.fixe;
-	}
-	// afficheMain = Boolean(document.getElementsByName("afficheMain")[0].value);
-	
 	init();
 }
 
