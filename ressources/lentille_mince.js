@@ -8,12 +8,6 @@ var filtre;
 var faisceau=false
 var tabCou=new Array(0xFF0000,0x00FF00,0x0000FF,0x9900FF,0x00CC99,0xFFFF00,0xFFCCFF,0x33FFFF,0xFFCC00,0xFFEFEF,0x000066);
 
-
-
-// function parametrage(limite) {
-	// var saisie = document.getElementById(limite);
-// }
-	
 function init() {
 	var canv = document.getElementById("testCanvas");
 	canv.style.backgroundColor='#006'
@@ -190,7 +184,7 @@ function init() {
 		grille.graphics.moveTo(-k*20, -180);
 		grille.graphics.lineTo(-k*20, 200);
 	}
-	contGrille.visible=false
+	contGrille.visible=false;
 
 	
 	//echelle
@@ -250,7 +244,7 @@ function init() {
 	btgrille.y =212;
 	btgrille.on("click", function(){
 		contGrille.visible=!contGrille.visible;
-		calcule()
+		calcule();
 	});
 	if(afficherGrille) {
 		btgrille.visible = true;
@@ -544,12 +538,8 @@ function init() {
 			
 		stage.update();
 	}
-
-		
-		//incident(rayons,ob,im.Y, -w/2, w/2, 2,5)
 		
 	function emergent(mc,L,img,ordo, xmin, xmax, ep, f){
-
 		var P=new createjs.Point(img.X,img.Y);
 		var pente = (img.Y-ordo)/(img.X-L.x);
 		var yfin=ordo+(xmax-L.x)*pente;
@@ -564,32 +554,17 @@ function init() {
 		if (img.reel) {
 			//image réelle
 			rayon(mc,inci, arriv, f);
-			// if (ordo != 0) {
-				// pointille(mc,new createjs.Point(xmax,yprevu), new createjs.Point(L.x, ordo), couEmergent);
-			// }
 		}
 		else{
 			//image virtuelle
 			mc.graphics.beginStroke('#AAA');
-			//if(ordo!==0){
-				/*
-				if (img.X>xmin) {
-					pointille(mc,new createjs.Point(xmax,yprevu), new createjs.Point(L.x, ordo), couEmergent);
-					pointille(mc,P, new createjs.Point(L.x, ordo), '#AAA');
+			pointille(mc,P,inci,couEmergent);
+			if(curFoc.value <= 0) {
+				pointille(mc,new createjs.Point(xmax,yprevu), inci, couIncident);
+				if(ordo == ob.Y) {
+					pointille(mc,Fbis,P,couEmergent);
 				}
-				else {
-					pointille(mc,new createjs.Point(xmin, ydeb), new createjs.Point(L.x, ordo), '#AAA');
-					pointille(mc,new createjs.Point(xmax,yprevu), new createjs.Point(L.x, ordo), couEmergent);
-				}
-				*/
-				pointille(mc,P, new createjs.Point(L.x, ordo), couEmergent);
-				if(curFoc.value <= 0) {
-					pointille(mc,new createjs.Point(xmax,yprevu), new createjs.Point(L.x, ordo), couIncident);
-					if(ordo == ob.Y) {
-						pointille(mc,Fbis,P,couEmergent);
-					}
-				}
-			//}
+			}
 			mc.graphics.setStrokeStyle(ep).beginStroke(couEmergent);
 			rayon(mc,inci, arriv, f);
 		}
@@ -735,17 +710,11 @@ function init() {
 			}
 		}
 		else{
-			
 			//objet virtuel
 			mc.graphics.setStrokeStyle(ep).beginStroke(couIncident);
 			rayon(mc,depart, inci, f);
-			console.log(P.x,-curFoc.value,F);
-			// if (obj.X<xmax && (P.x <= -curFoc.value || -curFoc.value <= 0)) {
 			if (obj.X<xmax && (P.x <= F.x || -curFoc.value <= 0)) {
 				pointille(mc,new createjs.Point(L.x, ordo),new createjs.Point(xmax,yfin), couIncident);
-			}
-			else {
-				//pointille(ray,new createjs.Point(L.x, ordo),new Point(xmax, yfin), f);
 			}
 			if(F.x >= P.x) {
 				pointille(mc,new createjs.Point(L.x,P.y),Fbis,couEmergent);
@@ -819,50 +788,21 @@ function positionne(ob,pt){
 }
 
 //parametres
-function getParametre(parametre, defaultvalue){
-    var urlparameter;
-	var elementHTML = document.getElementsByName(parametre)[0];
-	
-    if(window.location.href.indexOf(parametre) > -1){
-        urlparameter = getUrlValue()[parametre];
-    }
-	if (urlparameter !== undefined && urlparameter != '') {
-		if(elementHTML.type == "checkbox") {
-			elementHTML.checked = true;
-		}
-		else {
-			elementHTML.value = urlparameter;
-		}
-		return urlparameter;
-	} else {
-		// document.getElementsByName(parametre)[0].placeholder = defaultvalue;
-		return defaultvalue;
-	}
-}
-
-function getUrlValue() {
-	var vars = {};
-	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-		vars[key] = value;
-	});
-	return vars;
-}
-
 function generer() {
 	var original = document.getElementById("origine");
 	var clone = original.cloneNode(true);
+	console.log("clone de : ",clone," type : ",typeof(clone));
 	var divFormulaire = clone.querySelector("#limites");
 	divFormulaire.style.display = "none";
 	var cloneTxt = clone.innerHTML;
-	
+
 	var fichier = new Blob([cloneTxt], {type: 'text/html'});
 	var url = URL.createObjectURL(fichier);
-	
 	var a = document.createElement("a");
 	a.href = url;
 	a.download = 'TP1';
-	a.click();
 	document.body.appendChild(a);
+	a.click();
 	
 	setTimeout(function() {
 		document.body.removeChild(a);
@@ -872,13 +812,10 @@ function generer() {
 
 function setParametres() {
 	var formulaire = document.getElementById("parametres");
-	var id;
 	var valeur;
 	var valeurDefaut;
-	var i;
 	
-	for(i = 0; i < formulaire.length; i++) {
-		id = formulaire.elements[i].id;
+	for(var i = 0; i < formulaire.length; i++) {
 		type = formulaire.elements[i].type;
 		if(type === "number") {
 			valeur = Number(formulaire.elements[i].value);
