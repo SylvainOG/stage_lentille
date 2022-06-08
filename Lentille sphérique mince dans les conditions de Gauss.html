@@ -54,6 +54,17 @@
 				</span>
 				<br>
 				<br>
+				<div id="divEcran">
+					<strong>Ecran :</strong> 
+					<span>
+						min <input type="number" id="Ecran_min" class="controle_affichage" min="-100" max="100" value="-100">
+						max <input type="number" id="Ecran_max" class="controle_affichage" min="-100" max="100"value="100">
+						<input type="checkbox" id="Ecran_fixe"><label for="Curseur_fixe">Fixe </label>
+						<input type="number" id="Ecran_value" value="90">
+					</span>
+				</div>
+				<br>
+				<br>
 				
 				<h3 align="center">Options</h3>
 				<div>
@@ -66,7 +77,6 @@
 						<label for="afficherGrille">Afficher une grille</label>
 					</div>
 				</div>
-				<br>
 				<div class="options">
 					<div class="optionGauche">
 						<label for="modeFaisceau">Mode faisceau</label>
@@ -77,11 +87,17 @@
 						<label for="afficherValeurs">Afficher les valeurs</label>
 					</div>
 				</div>
-				
-				<label for="afficheMain">Afficher la main d'aide</label>
-				<input type="checkbox" id="afficheMain">
-				<br>
-				<br>
+				<div class="options">
+					<div class="optionGauche">
+						<label for="afficheMain">Afficher la main d'aide</label>
+						<input type="checkbox" id="afficheMain">
+					</div>
+					<div class="optionDroite">
+						<input type="checkbox" id="afficherEcran">
+						<label for="afficherEcran">Afficher l'écran</label>
+					</div>
+				</div>
+		
 				<input type="button" value="Appliquer" onclick="setParametres()"> <input type="button" value="Réinitialiser" onclick="window.location.reload()">
 				<br>
 				<input type="button" value="Générer" onclick="generer()">

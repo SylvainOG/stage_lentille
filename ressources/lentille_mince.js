@@ -7,6 +7,7 @@ var coef=0.25;
 var filtre;
 var faisceau=false
 var tabCou=new Array(0xFF0000,0x00FF00,0x0000FF,0x9900FF,0x00CC99,0xFFFF00,0xFFCCFF,0x33FFFF,0xFFCC00,0xFFEFEF,0x000066);
+var dessineEcran=false;
 
 function init() {
 	var canv = document.getElementById("testCanvas");
@@ -54,11 +55,18 @@ function init() {
 		fixe : Boolean(document.getElementById("Curseur_fixe").checked),
 		value : Number(document.getElementById("Curseur_value").value) / coef
 	};
+	var ecranHTML = {
+		min : Number(document.getElementById("Ecran_min").value) / coef,
+		max : Number(document.getElementById("Ecran_max").value) / coef,
+		fixe : Boolean(document.getElementById("Ecran_fixe").checked),
+		value : Number(document.getElementById("Ecran_value").value) / coef
+	};		
 	var objInfini = Boolean(document.getElementById("objInfini").checked);
 	var afficherGrille = Boolean(document.getElementById("afficherGrille").checked);
 	var modeFaisceau = Boolean(document.getElementById("modeFaisceau").checked);
 	var afficherValeurs = Boolean(document.getElementById("afficherValeurs").checked);
 	var afficheMain = Boolean(document.getElementById("afficheMain").checked);
+	var afficherEcran = Boolean(document.getElementById("afficherEcran").checked);
 	
 	//aide
 	var txtEmploi='- le curseur permet de choisir la distance focale de la lentille \n- cliquer-glisser sur le point A1 pour déplacer l\'objet, et sur le point B1 pour changer sa hauteur. Un bouton permet de le placer à l\'infini. \n- cliquer-glisser sur la lentille pour la déplacer \n- un bouton permet de choisir entre un faisceau ou 3 rayons \n- un autre bouton permet d\'afficher/cacher une grille \n- un dernier bouton permet d\'afficher/cacher les valeurs numériques \n- la palette située à gauche permet de changer la couleur des rayons ou la couleur de fond'
@@ -271,6 +279,8 @@ function init() {
 	else {
 		btaff.visible = false;
 	}
+	
+
 	
 	//rayons
 	var rayons=new createjs.Shape();
@@ -495,12 +505,79 @@ function init() {
 	txd1.textAlign='center'
 	donne.addChild(fl,txd,txd1,txd2,txd3)
 	
+	//ecran
+	var ecran = new createjs.Container();
+	if(ecranHTML.value > ecranHTML.max) {
+		ecran.x = ecranHTML.max;
+	}
+	else if(ecranHTML.value < ecranHTML.min) {
+		ecran.x = ecranHTML.min;
+	}
+	else {
+		ecran.x = ecranHTML.value;
+	}
+	ecran.y = 0;
+	if(dessineEcran) {
+		ecran.visible = true;
+	}
+	else {
+		ecran.visible = false;
+	}
+	
+	var txEcran = new createjs.Text('E', "Bold 17px Arial", couL).set({x:0,y:-160});
+	var trait = new createjs.Shape();
+	trait.graphics.beginStroke("#639AFF").moveTo(0,-140).lineTo(0,140);
+	var hachure = new createjs.Shape();
+	hachure.graphics.beginStroke(couL);
+	for(var i = -6; i < 8; i++) {
+		hachure.graphics.moveTo(0,i*20).lineTo(11,i*20 - 15);
+	}
+	ecran.addChild(txEcran,trait,hachure);
+	
+	if(ecranHTML.fixe === false) {
+		ecran.cursor = "pointer";
+	}
+	
+	ecran.on("pressmove", function(evt){
+		if(ecranHTML.fixe === false) {
+			if(evt.stageX-systeme.x < ecranHTML.min) {
+				ecran.x = ecranHTML.min;
+			}
+			else if (evt.stageX-systeme.x > ecranHTML.max) {
+				ecran.x = ecranHTML.max;
+			}
+			else {
+				ecran.x = evt.stageX - systeme.x;
+			}
+		}
+		calcule();
+	})
+	
+	//bouton "écran"
+	var btecran = new Bouton("afficher un écran", "#50A", 150);
+	btecran.x = 140;
+	btecran.y = 288;
+	var divEcran = document.getElementById("divEcran");
+	divEcran.style.visibility = ecran.visible>0 ? "visible":"hidden";
+	btecran.on("click", function(){
+		dessineEcran = !dessineEcran;
+		ecran.visible = !ecran.visible;
+		divEcran.style.visibility = ecran.visible>0 ? "visible":"hidden";
+		calcule();
+	})
+	if(afficherEcran) {
+		btecran.visible = true;
+	}
+	else {
+		btecran.visible = false;
+	}
+	
 	//signature
 	var signature=signer('08/2018',couL).set({x:340,y:270});
 	
 	
 	stage.addChild(systeme,aide);
-	systeme.addChild(sens,axe,contGrille,lentille,curFoc,btinf,btfaisc,btgrille,btaff,rayons,aff,pA1,pB1,txA2,txB2,txPositionB2,paletteIncident,paletteEmergent,donne,signature);
+	systeme.addChild(sens,axe,contGrille,lentille,curFoc,btinf,btfaisc,btgrille,btaff,btecran,rayons,aff,pA1,pB1,txA2,txB2,txPositionB2,paletteIncident,paletteEmergent,donne,ecran,signature);
 	systeme.addChild(btPE);
 	calcule();
 
@@ -802,6 +879,7 @@ function generer() {
 	a.href = url;
 	a.download = 'TP1';
 	document.body.appendChild(a);
+	console.log(a);
 	a.click();
 	
 	setTimeout(function() {
@@ -817,6 +895,7 @@ function setParametres() {
 	
 	for(var i = 0; i < formulaire.length; i++) {
 		type = formulaire.elements[i].type;
+		//classe = formulaire.elements[i].class;
 		if(type === "number") {
 			valeur = Number(formulaire.elements[i].value);
 			valeurDefaut = Number(formulaire.elements[i].defaultValue);
